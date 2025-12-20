@@ -21,6 +21,7 @@ def parse_args():
     p.add_argument("--out", required=True)
     p.add_argument("--plan-doc", required=True)
     p.add_argument("--mlo-meta", required=False)
+    p.add_argument("--props-manifest", required=False)
     p.add_argument("--place", default="")
     p.add_argument("--floors", type=int, default=1)
     p.add_argument("--full-mlo", action="store_true")
@@ -117,6 +118,37 @@ def write_mlo_meta(meta_path: Path, data: dict):
     meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
 
+def props_for_room(room_name: str):
+    base = {
+        "kitchen": ["counter", "fridge", "table"],
+        "dayroom": ["couch", "tv", "table"],
+        "watch": ["desk", "chair", "monitor"],
+        "gear_lockers": ["locker", "bench"],
+        "bunks": ["bed", "locker"],
+        "gym": ["bench_press", "rack"],
+        "training": ["table", "chair", "projector"],
+        "admin_office": ["desk", "chair", "computer"],
+        "chief_office": ["desk", "chair", "bookcase"],
+    }
+    for key, props in base.items():
+        if key in room_name:
+            return props
+    return []
+
+
+def write_props_manifest(path: Path, data: dict):
+    placeholders = []
+    for room in data.get("rooms", []):
+        for idx, hint in enumerate(props_for_room(room["name"]), start=1):
+            placeholders.append({
+                "name": f"PROP_{room['name']}_{idx}",
+                "room": room["name"],
+                "suggested_keywords": [hint],
+            })
+    manifest = {"placeholders": placeholders}
+    path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+
 def main():
     args = parse_args()
     out_path = Path(args.out)
@@ -131,6 +163,8 @@ def main():
     write_plan(Path(args.plan_doc), data)
     if args.mlo_meta:
         write_mlo_meta(Path(args.mlo_meta), data)
+    if args.props_manifest and not args.no_props:
+        write_props_manifest(Path(args.props_manifest), data)
 
 
 if __name__ == "__main__":

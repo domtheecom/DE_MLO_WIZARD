@@ -1,8 +1,15 @@
 import argparse
 import json
+import sys
 from pathlib import Path
+
 import bpy
-from . import utils_sollumz
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.append(str(SCRIPT_DIR))
+
+import utils_sollumz
 
 
 def log(msg, path):
@@ -18,7 +25,10 @@ def main():
     parser.add_argument("--output", required=True)
     parser.add_argument("--log")
     parser.add_argument("--no-portals", action="store_true")
-    args = parser.parse_args()
+    if "--" in sys.argv:
+        args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
+    else:
+        args = parser.parse_args()
 
     with open(args.floorplan, "r", encoding="utf-8") as f:
         plan = json.load(f)

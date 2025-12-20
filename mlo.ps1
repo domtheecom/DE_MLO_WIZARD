@@ -138,17 +138,23 @@ Write-RunLog -Path $runLog -Message "Parsing prompt"
 $fullMloFlag = if ($FullMLO) { "--full-mlo" } else { "" }
 $propsFlag = if ($NoProps) { "--no-props" } else { "" }
 $portalsFlag = if ($NoPortals) { "--no-portals" } else { "" }
-& $pythonExe "$srcRoot/prompt_to_floorplan.py" --prompt "$Prompt" --out $floormapOut --place "$Place" --floors $Floors --plan-doc $planDoc --mlo-meta $mloMeta $fullMloFlag $propsFlag $portalsFlag
+& $pythonExe "$srcRoot/prompt_to_floorplan.py" --prompt "$Prompt" --out $floormapOut --place "$Place" --floors $Floors --plan-doc $planDoc --mlo-meta $mloMeta --props-manifest $propsManifest $fullMloFlag $propsFlag $portalsFlag
 
 if (-not $SkipBlender) {
     Write-Host "Running Blender headless build..."
     Write-RunLog -Path $runLog -Message "Starting Blender build"
-    & $blenderPathResolved -b -P "$srcRoot/blender/build_from_floorplan.py" -- --floorplan $floormapOut --output $Out --blend $blendFile --full-mlo $FullMLO --no-props:$NoProps --no-portals:$NoPortals
+    $buildArgs = @("--floorplan", $floormapOut, "--output", $Out, "--blend", $blendFile)
+    if ($FullMLO) { $buildArgs += "--full-mlo" }
+    if ($NoProps) { $buildArgs += "--no-props" }
+    if ($NoPortals) { $buildArgs += "--no-portals" }
+    & $blenderPathResolved -b -P "$srcRoot/blender/build_from_floorplan.py" -- $buildArgs
 
     if ($FullMLO) {
         Write-Host "Authoring MLO structures..."
         Write-RunLog -Path $runLog -Message "MLO authoring"
-        & $blenderPathResolved -b $blendFile -P "$srcRoot/blender/mlo_authoring.py" -- --floorplan $floormapOut --output $Out --log $runLog --no-portals:$NoPortals
+        $authorArgs = @("--floorplan", $floormapOut, "--output", $Out, "--log", $runLog)
+        if ($NoPortals) { $authorArgs += "--no-portals" }
+        & $blenderPathResolved -b $blendFile -P "$srcRoot/blender/mlo_authoring.py" -- $authorArgs
     }
 
     Write-Host "Exporting via Sollumz (headless XML-first)..."

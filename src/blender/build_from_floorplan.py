@@ -1,7 +1,19 @@
 import argparse
 import json
+import sys
+
 import bpy
 import math
+
+DEFAULTS = {
+    "floor_height": 3.2,
+    "wall_thickness": 0.2,
+    "corridor_width": 2.6,
+    "door_width": 1.0,
+    "double_door_width": 1.8,
+    "bay_opening_width": 4.0,
+    "bay_opening_height": 4.5,
+}
 
 
 def ensure_collection(name: str):
@@ -16,7 +28,7 @@ def ensure_collection(name: str):
 
 def safe_unlink(obj, coll):
     try:
-        if obj.name in coll.objects:
+        if coll and coll.objects.get(obj.name):
             coll.objects.unlink(obj)
     except Exception:
         pass
@@ -37,7 +49,9 @@ def create_box(name, size, location, collection):
     obj.scale = (size[0] / 2, size[1] / 2, size[2] / 2)
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
     collection.objects.link(obj)
-    safe_unlink(obj, bpy.context.scene.collection)
+    for coll in list(obj.users_collection):
+        if coll != collection:
+            safe_unlink(obj, coll)
     return obj
 
 
@@ -107,7 +121,10 @@ def main():
     parser.add_argument("--full-mlo", action="store_true")
     parser.add_argument("--no-props", action="store_true")
     parser.add_argument("--no-portals", action="store_true")
-    args = parser.parse_args()
+    if "--" in sys.argv:
+        args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
+    else:
+        args = parser.parse_args()
 
     with open(args.floorplan, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -119,7 +136,7 @@ def main():
 
     clear_scene()
 
-    defaults = data.get("defaults", {})
+    defaults = {**DEFAULTS, **data.get("defaults", {})}
 
     for room in data.get("rooms", []):
         build_room(room, defaults, geo_coll)

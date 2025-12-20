@@ -1,7 +1,13 @@
 import argparse
-import json
 from pathlib import Path
-from ..codewalker.placement_pack import build_docs
+import sys
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+SRC_DIR = SCRIPT_DIR.parent
+if str(SRC_DIR) not in sys.path:
+    sys.path.append(str(SRC_DIR))
+
+from codewalker.placement_pack import build_docs
 
 def write_fxmanifest(stream_dir: Path, resource: str):
     fx = stream_dir.parent / "fxmanifest.lua"
