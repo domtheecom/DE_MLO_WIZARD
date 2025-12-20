@@ -1,0 +1,38 @@
+{
+  "defaults": {
+    "floor_height": 4.0,
+    "module_spacing": 8.0
+  },
+  "exterior_shells": {
+    "fire station": {
+      "archetype": "v_firestation_shell",
+      "size": [30.0, 25.0, 15.0]
+    },
+    "police station": {
+      "archetype": "v_police_station_shell",
+      "size": [32.0, 26.0, 15.0]
+    },
+    "hospital": {
+      "archetype": "v_hospital_shell",
+      "size": [40.0, 30.0, 18.0]
+    }
+  },
+  "interior_modules": {
+    "office": {
+      "archetype": "v_office_modern",
+      "size": [6.0, 6.0, 4.0]
+    },
+    "dorm": {
+      "archetype": "v_dorm_room",
+      "size": [6.0, 6.0, 4.0]
+    },
+    "garage_bay": {
+      "archetype": "v_garage_bay",
+      "size": [8.0, 8.0, 6.0]
+    },
+    "stairs": {
+      "archetype": "v_stairs_generic",
+      "size": [4.0, 4.0, 4.0]
+    }
+  }
+}
