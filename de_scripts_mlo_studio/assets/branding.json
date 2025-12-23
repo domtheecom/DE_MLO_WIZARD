@@ -1,0 +1,11 @@
+{
+  "app_name": "DE Scripts MLO Studio",
+  "brand_name": "DE Scripts",
+  "theme": {
+    "background": "#121212",
+    "panel": "#1c1c1c",
+    "text": "#f5f5f5",
+    "accent": "#d62828",
+    "accent_secondary": "#f77f00"
+  }
+}
