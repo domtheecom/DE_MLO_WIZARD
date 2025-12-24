@@ -1,8 +1,0 @@
-/dist/
-/build/
-/user_data/
-*.exe
-*.zip
-__pycache__/
-*.pyc
-.DS_Store
